@@ -1,0 +1,22 @@
+<html>
+<head>
+	<title>freemarker pojo</title>
+</head>
+<body>
+	<table>
+		<thead>
+			<tr><th>序号</th><th>编号</th><th>姓名</th><th>生日</th><th>性别</th></tr>
+		</thead>
+		<tbody>
+			<#list stus as stu>
+				<#if stu?is_odd_item>
+					<tr bgcolor='blue'><td>${stu?index}</td><td>${(stu.id)!""}</td><td>${stu.name}</td><td>${(stu.birthday)?date}</td><td>${(stu.sex)!""}</td></tr>
+				<#else>
+					<tr><td>${stu?index}</td><td>${(stu.id)!""}</td><td>${stu.name}</td><td>${(stu.birthday)?date}</td><td>${(stu.sex)!""}</td></tr>
+				</#if>
+			</#list>
+		</tbody>
+	</table>
+	${da?string('yyyy/MM/dd HH:mm:ss')}
+</body>
+</html>

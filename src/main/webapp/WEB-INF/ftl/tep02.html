@@ -1,0 +1,15 @@
+<html>
+<head>
+	<title>freemarker pojo</title>
+</head>
+<body>
+	<table>
+		<thead>
+			<tr><th>编号</th><th>姓名</th><th>生日</th><th>性别</th></tr>
+		</thead>
+		<tbody>
+			<tr><td>${(stu.id)!""}</td><td>${stu.name}</td><td>${(stu.birthday)?date}</td><td>${(stu.sex)!""}</td></tr>
+		</tbody>
+	</table>	
+</body>
+</html>

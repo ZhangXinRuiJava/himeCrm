@@ -1,0 +1,48 @@
+/target
+
+*.class
+ 
+# Package Files #
+*.jar
+*.war
+*.ear
+*.db
+
+######################
+# Eclipse
+######################
+ 
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+.idea
+# External tool builders
+.externalToolBuilders/
+/eclipseTarget/
+!/src/main/resources/lexicon-api-0.1-SNAPSHOT.jar
+
+######################
+# IntelliJ
+######################
+lexicon-view-assembler-service.iml
+nbactions.xml
+/nbproject/
+nb-configuration.xml
+
+src/main/webapp/WEB-INF/glassfish-web.xml
+
+.pmd
+
+.pmdruleset.xml
+
+src/main/java/META-INF/MANIFEST.MF

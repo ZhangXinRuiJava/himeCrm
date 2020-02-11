@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+						   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+						   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd ">
+
+	<!-- 注解扫描 -->
+	<context:component-scan base-package="com.hime.service"></context:component-scan>
+
+	<!-- 读取连接池配置文件 -->
+	<context:property-placeholder location="classpath:db.properties"/>
+	<!-- 配置druid连接池 -->
+	<bean id="dataSource" init-method="init" destroy-method="close" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	
+	<!-- 在使用mybatis时 spring使用sqlsessionFactoryBean 来管理mybatis的sqlsessionFactory -->
+	<bean name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 注入数据源 -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 将mybatis配置文件的内容直接写到spring中 别名+映射文件位置(mapper代理扫描包方式配置了就不用写了)-->
+		<property name="typeAliasesPackage">
+			<!-- 扫描多个包直接用,隔开即可 -->
+			<value>com.hime.pojo,com.hime.utils</value>
+		</property>
+		<!-- <property name="mapperLocations" value="classpath:com/hime/mapper/*.xml"></property> -->
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- 
+		1 注解方式配置事务
+			事务注解驱动，标注@Transactional的类和方法将具有事务性,比如注解在UserDaoImplTest
+	 -->
+	<!-- <tx:annotation-driven transaction-manager="transactionManager" /> -->
+	
+	<!-- 2 xml方式配置事务,可以，必须在service层管理事务 -->
+	<!-- 通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="insert*" read-only="false"/>
+			<tx:method name="add*" read-only="false"/>
+			<tx:method name="save*" read-only="false"/>
+			<tx:method name="persist*" read-only="false"/>
+			<tx:method name="update*" read-only="false"/>
+			<tx:method name="modify*" read-only="false"/>
+			<tx:method name="delete*" read-only="false"/>
+			<tx:method name="remove*" read-only="false"/>
+		</tx:attributes>
+	</tx:advice>
+	<!-- 将通知织入目标对象 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* com.hime.service.impl.*ServiceImpl.*(..))" id="perform"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="perform"/>
+	</aop:config>
+	
+	<!--
+		 Mapper代理的方式开发方式二，扫描包方式配置代理
+		 	每个mapper代理对象的id就是类名，首字母小写
+	 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.hime.mapper"></property>
+		<!-- 可选项，除非定义多个会话工厂--> 
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+	
+	<!-- service -->
+	<!--<bean name="customerService" class="com.hime.service.impl.CustomerServiceImpl">
+		<property name="customerMapper" ref="customerMapper"></property>
+	</bean>-->
+	<bean name="baseDictService" class="com.hime.service.impl.BaseDictServiceImpl">
+		<property name="baseDictMapper" ref="baseDictMapper"></property>
+	</bean>
+	
+	
+	<!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供 -->
+	<!--<bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://192.168.233.129:61616" />
+	</bean>-->
+	<!-- Spring用于管理真正的ConnectionFactory的ConnectionFactory -->
+	<!--<bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+		&lt;!&ndash; 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory &ndash;&gt;
+		<property name="targetConnectionFactory" ref="targetConnectionFactory" />
+	</bean>-->
+	
+	<!-- 配置生产者 -->
+	<!-- Spring提供的JMS工具类，它可以进行消息发送、接收等 -->
+	<!--<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		&lt;!&ndash; 这个connectionFactory对应的是我们定义的Spring提供的那个ConnectionFactory对象 &ndash;&gt;
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>-->
+	
+	<!--这个是队列目的地，点对点的 -->
+	<!--<bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>spring-queue</value>
+		</constructor-arg>
+	</bean>-->
+	<!--这个是主题目的地，一对多的 -->
+	<!--<bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="topic" />
+	</bean>-->
+	
+	<!-- 接收消息 -->
+	<!-- 配置监听器 -->
+	<!--<bean id="myMessageListener" class="com.hime.testp.MyMessageListener" />-->
+	<!-- 消息监听容器 -->
+	<!--<bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="queueDestination" />
+		<property name="messageListener" ref="myMessageListener" />
+	</bean>-->
+	
+	<!-- 测试，spring整合freemarker org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer -->
+	<bean id="freeMarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="WEB-INF/ftl"></property>
+		<property name="defaultEncoding" value="UTF-8"></property>
+	</bean>
+	
+</beans>
