@@ -78,7 +78,7 @@
 		<gson.version>2.2.4</gson.version>
 		<fastjson.version>1.2.49</fastjson.version>
 		<!-- 与hibernate-orm无关 后端验证 -->
-		<hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
+		<hibernate-validator.version>5.4.2.Final</hibernate-validator.version>
 		<jstl.version>1.2</jstl.version>
 		<standard.version>1.1.2</standard.version>
 		<commons-net.version>3.3</commons-net.version>
